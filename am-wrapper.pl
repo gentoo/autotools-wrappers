@@ -74,23 +74,10 @@ sub ac_version {
 
 
 my $binary      = "$0-1.4";
-my $binary_1_5  = "$0-1.5x";
-my $binary_1_6  = "$0-1.6x";
-my $binary_1_7  = "$0-1.7x";
-my $binary_1_8  = "$0-1.8x";
-
-# Automake is really getting out of hand, so rather start supporting
-# WANT_AUTOMAKE = "1.7" the like.  Unfortunately it override the old
-# variables, so if not set, just convert the old variables ....
-if ($ENV{WANT_AUTOMAKE} eq "") {
-	if ($ENV{WANT_AUTOMAKE_1_4}) {
-		$ENV{WANT_AUTOMAKE} = '1.4';
-	} elsif ($ENV{WANT_AUTOMAKE_1_6}) {
-		$ENV{WANT_AUTOMAKE} = '1.6';
-	} elsif ($ENV{WANT_AUTOMAKE_1_5}) {
-		$ENV{WANT_AUTOMAKE} = '1.5';
-	}
-}
+my $binary_1_5  = "$0-1.5";
+my $binary_1_6  = "$0-1.6";
+my $binary_1_7  = "$0-1.7";
+my $binary_1_8  = "$0-1.8";
 
 # question here is do we really want 1.5 or 1.6?  Out of a KDE outlook, it
 # should rather be 1.5, and since most people would rather have migrated to
