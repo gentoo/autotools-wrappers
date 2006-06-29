@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 1999-2005 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-3.2.sh,v 1.1 2005/09/09 23:15:25 azarah Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-3.3.sh,v 1.1 2006/06/29 06:45:51 azarah Exp $
 
 # Based on the ac-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
@@ -28,7 +28,13 @@ if [[ ${WANT_AUTOCONF} == "2.1" && ${0##*/} == "autom4te" ]] ; then
 	exit 1
 fi
 
-binary_new="${0}-2.59"
+if type -p autoconf-2.60 &>/dev/null ; then
+	binary_new="${0}-2.60"
+elif type -p autoconf-2.59d &>/dev/null ; then
+	binary_new="${0}-2.59d"
+else
+	binary_new="${0}-2.59"
+fi
 binary_old="${0}-2.13"
 binary=${binary_new}
 
