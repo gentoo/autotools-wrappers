@@ -1,15 +1,15 @@
 #!/bin/bash
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-3.3.sh,v 1.1 2006/06/29 06:45:51 azarah Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-4.sh,v 1.1 2006/11/05 08:44:41 vapier Exp $
 
 # Based on the ac-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
 #
 # Executes the correct autoconf version.
 #
-# - defaults to latest version (2.5x)
-# - runs autoconf 2.13 only if:
+# - defaults to newest version available (hopefully autoconf-2.60)
+# - runs autoconf 2.13 if:
 #   - envvar WANT_AUTOCONF is set to `2.1'
 #     -or-
 #   - `ac{local,include}.m4' or `configure.{in,ac}' have AC_PREREQ(2.1) (not higher)
@@ -28,16 +28,54 @@ if [[ ${WANT_AUTOCONF} == "2.1" && ${0##*/} == "autom4te" ]] ; then
 	exit 1
 fi
 
-if type -p autoconf-2.60 &>/dev/null ; then
-	binary_new="${0}-2.60"
-elif type -p autoconf-2.59d &>/dev/null ; then
-	binary_new="${0}-2.59d"
-else
-	binary_new="${0}-2.59"
-fi
-binary_old="${0}-2.13"
-binary=${binary_new}
+#
+# Set up bindings between actual version and WANT_AUTOCONF
+#
+vers="2.60:2.5 2.59:2.5 2.13:2.1"
 
+binary=""
+for v in ${vers} ; do
+	auto_ver=${v%:*} # aka 2.60
+	want_ver=${v#*:} # aka 2.5
+	eval binary_${want_ver/./_}="${0}-${auto_ver}"
+
+	if [ -z "${binary}" ] && [ -x "${0}-${auto_ver}" ] ; then
+		binary="${0}-${auto_ver}"
+	fi
+done
+if [ -z "${binary}" ] ; then
+	echo "ac-wrapper: Unable to locate any usuable version of autoconf." >&2
+	echo "            I tried these versions: ${vers}" >&2
+	echo "            With a base name of '${0}'." >&2
+	exit 1
+fi
+
+#
+# Check the WANT_AUTOCONF setting.  We accept a whitespace delimited
+# list of autoconf versions.
+#
+if [ -n "${WANT_AUTOCONF}" ] ; then
+	for v in ${vers} x ; do
+		if [ "${v}" = "x" ] ; then
+			echo "ac-wrapper: warning: invalid WANT_AUTOCONF '${WANT_AUTOCONF}'; ignoring." >&2
+			unset WANT_AUTOCONF
+			break
+		fi
+
+		want_ver=${v#*:}
+		for wx in ${WANT_AUTOCONF} ; do
+			if [ "${wx}" = "${want_ver}" ] ; then
+				binary="binary_${want_ver/./_}"
+				binary="${!binary}"
+				break
+			fi
+		done
+	done
+fi
+
+#
+# autodetect helpers
+#
 acprereq_version() {
 	gawk \
 	'($0 !~ /^[[:space:]]*(#|dnl)/) {
@@ -66,34 +104,30 @@ generated_version() {
 #
 # autodetect routine
 #
-if [[ ${WANT_AUTOCONF} != "2.5" ]] ; then 
-	if [[ ${WANT_AUTOCONF} == "2.1" ]] ; then
-		if [[ ! -f "configure.ac" ]] ; then
-			binary=${binary_old}
-		else
-			echo "ac-wrapper: Since configure.ac is present, aclocal always use" >&2
-			echo "            autoconf 2.59, which conflicts with your choice and" >&2
-			echo "            causes error. You have two options:" >&2
-			echo "            1. Try execute command again after removing configure.ac" >&2
-			echo "            2. Don't set WANT_AUTOCONF" >&2
-			exit 1
-		fi
-	else
-		# Automake-1.7 and better requie autoconf-2.5x
-		case "${WANT_AUTOMAKE}" in
-		1.[7-9]) ;;
-		*)
-			acfiles=$(ls ac{local,include}.m4 configure.{in,ac} 2>/dev/null)
-			[[ -n ${acfiles} ]] && confversion=$(acprereq_version ${acfiles})
-			
-			[[ -z ${confversion} && -r "configure" ]] && \
-				confversion=$(generated_version configure)
+if [[ ${WANT_AUTOCONF} == "2.1" ]] && [ -f "configure.ac" ] ; then
+	echo "ac-wrapper: Since configure.ac is present, aclocal always use" >&2
+	echo "            autoconf 2.59+, which conflicts with your choice and" >&2
+	echo "            causes error. You have two options:" >&2
+	echo "            1. Try execute command again after removing configure.ac" >&2
+	echo "            2. Don't set WANT_AUTOCONF" >&2
+	exit 1
+fi
 
-			if [[ ${confversion} == "2.1" && ! -f "configure.ac" ]] ; then
-				binary="${binary_old}"
-			fi
-		esac
-	fi
+if [[ ${WANT_AUTOCONF} != "2.5" ]] && [[ -n ${WANT_AUTOMAKE} ]] ; then
+	# Automake-1.7 and better require autoconf-2.5x so if WANT_AUTOMAKE
+	# is set to an older version, let's do some sanity checks.
+	case "${WANT_AUTOMAKE}" in
+	1.[456])
+		acfiles=$(ls ac{local,include}.m4 configure.{in,ac} 2>/dev/null)
+		[[ -n ${acfiles} ]] && confversion=$(acprereq_version ${acfiles})
+		
+		[[ -z ${confversion} && -r "configure" ]] \
+			&& confversion=$(generated_version configure)
+
+		if [[ ${confversion} == "2.1" && ! -f "configure.ac" ]] ; then
+			binary="${binary_2_1}"
+		fi
+	esac
 fi
 
 if [[ -n ${WANT_ACWRAPPER_DEBUG} ]] ; then
@@ -106,12 +140,17 @@ fi
 #
 # for further consistency
 #
-if [[ ${binary} == "${binary_new}" ]] ; then
-	export WANT_AUTOCONF="2.5"
-elif [[ ${binary} == "${binary_old}" ]] ; then
-	export WANT_AUTOCONF="2.1"
-fi
+for v in ${vers} ; do
+	want_ver=${v#*:}
+	mybin="binary_${want_ver/./_}"
+	if [ "${binary}" = "${!mybin}" ] ; then
+		export WANT_AUTOMAKE="${want_ver}"
+	fi
+done
 
+#
+# Now try to run the binary
+#
 if [[ ! -x ${binary} ]] ; then
 	# this shouldn't happen
 	echo "ac-wrapper: ${binary} is missing or not executable." >&2
