@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-3.sh,v 1.3 2006/11/05 10:22:00 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-4.sh,v 1.1 2009/05/17 21:36:04 vapier Exp $
 
 # Based on the am-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
@@ -51,7 +51,7 @@ if [ "${0##*/}" = "am-wrapper.sh" ] ; then
 	exit 1
 fi
 
-vers="1.10 1.9 1.8 1.7 1.6 1.5 1.4"
+vers="1.11 1.10 1.9 1.8 1.7 1.6 1.5 1.4"
 
 #
 # Export the proper variable/versions and try to locate a usuable
