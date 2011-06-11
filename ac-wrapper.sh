@@ -1,7 +1,7 @@
 #!/bin/sh
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-10.sh,v 1.2 2010/09/24 02:20:33 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-11.sh,v 1.1 2011/06/11 23:37:38 vapier Exp $
 
 # Based on the ac-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
@@ -50,7 +50,7 @@ fi
 #
 # Set up bindings between actual version and WANT_AUTOCONF
 #
-vers="$(printf '2.%s:2.5 ' `seq 99 -1 59`) 2.13:2.1"
+vers="9999:2.5 $(printf '2.%s:2.5 ' `seq 99 -1 59`) 2.13:2.1"
 
 binary=""
 for v in ${vers} ; do
