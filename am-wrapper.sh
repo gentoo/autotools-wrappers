@@ -1,7 +1,7 @@
 #!/bin/sh
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-5.sh,v 1.1 2010/03/07 15:45:40 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/automake-wrapper/files/am-wrapper-6.sh,v 1.1 2011/10/02 19:51:17 vapier Exp $
 
 # Based on the am-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
@@ -46,10 +46,38 @@
 #     -or-
 #   - 'aclocal.m4' contain AM_AUTOMAKE_VERSION, specifying the use of 1.4
 
-warn() { printf "am-wrapper: $*\n" 1>&2; }
+warn() { printf 'am-wrapper: %s: %b\n' "${argv0}" "$*" 1>&2; }
 err() { warn "$@"; exit 1; }
+unset IFS
+which() {
+	local p
+	IFS=: # we don't use IFS anywhere, so don't bother saving/restoring
+	for p in ${PATH} ; do
+		p="${p}/$1"
+		[ -e "${p}" ] && echo "${p}" && return 0
+	done
+	unset IFS
+	return 1
+}
 
-if [ "${0##*/}" = "am-wrapper.sh" ] ; then
+#
+# Sanitize argv[0] since it isn't always a full path #385201
+#
+argv0=${0##*/}
+case ${0} in
+	${argv0})
+		# find it in PATH
+		if ! full_argv0=$(which "${argv0}") ; then
+			err "could not locate ${argv0}; file a bug"
+		fi
+		;;
+	*)
+		# re-use full/relative paths
+		full_argv0=$0
+		;;
+esac
+
+if [ "${argv0}" = "am-wrapper.sh" ] ; then
 	err "Don't call this script directly"
 fi
 
@@ -61,14 +89,15 @@ vers="1.11 1.10 1.9 1.8 1.7 1.6 1.5 1.4"
 #
 binary=""
 for v in ${vers} ; do
-	if [ -z "${binary}" ] && [ -x "${0}-${v}" ] ; then
-		binary="${0}-${v}"
+	if [ -z "${binary}" ] && [ -x "${full_argv0}-${v}" ] ; then
+		binary="${full_argv0}-${v}"
+		break
 	fi
 done
 if [ -z "${binary}" ] ; then
 	err "Unable to locate any usuable version of automake.\n" \
 	    "\tI tried these versions: ${vers}\n" \
-	    "\tWith a base name of '${0}'."
+	    "\tWith a base name of '${full_argv0}'."
 fi
 
 #
@@ -85,7 +114,7 @@ if [ -n "${WANT_AUTOMAKE}" ] ; then
 
 		for wx in ${WANT_AUTOMAKE} ; do
 			if [ "${wx}" = "${v}" ] ; then
-				binary="${0}-${v}"
+				binary="${full_argv0}-${v}"
 				v="x"
 			fi
 		done
@@ -119,7 +148,7 @@ if [ -z "${WANT_AUTOMAKE}" ] ; then
 		   [ "${confversion_ac}" = "${v}" ] || \
 		   [ "${confversion_am}" = "${v}" ]
 		then
-			binary="${0}-${v}"
+			binary="${full_argv0}-${v}"
 			break
 		fi
 	done
@@ -136,8 +165,9 @@ fi
 # for further consistency
 #
 for v in ${vers} ; do
-	if [ "${binary}" = "${0}-${v}" ] ; then
+	if [ "${binary}" = "${full_argv0}-${v}" ] ; then
 		export WANT_AUTOMAKE="${v}"
+		break
 	fi
 done
 
