@@ -1,7 +1,7 @@
 #!/bin/sh
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-12.sh,v 1.1 2011/10/02 19:39:07 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf-wrapper/files/ac-wrapper-13.sh,v 1.1 2013/04/16 18:48:33 vapier Exp $
 
 # Based on the ac-wrapper.pl script provided by MandrakeSoft
 # Rewritten in bash by Gregorio Guidi
@@ -77,10 +77,10 @@ fi
 
 #
 # Set up bindings between actual version and WANT_AUTOCONF;
-# Start at last known stable to speed up lookup process.
+# Start at last known unstable/stable versions to speed up lookup process.
 #
-STABLE_AUTOCONF="2.68:2.5"
-vers="${STABLE_AUTOCONF} 9999:2.5 $(printf '2.%s:2.5 ' `seq 99 -1 59`) 2.13:2.1"
+KNOWN_AUTOCONF="2.69:2.5 2.68:2.5"
+vers="${KNOWN_AUTOCONF} 9999:2.5 $(printf '2.%s:2.5 ' `seq 99 -1 59`) 2.13:2.1"
 
 binary=""
 for v in ${vers} ; do
@@ -111,7 +111,10 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 		auto_ver=${v%:*}
 		want_ver=${v#*:}
 		for wx in ${WANT_AUTOCONF} ; do
-			if [ "${wx}" = "${want_ver}" ] && [ -x "${full_argv0}-${auto_ver}" ] ; then
+			if [ -x "${full_argv0}-${wx}" ] ; then
+				binary="${full_argv0}-${wx}"
+				v="x"
+			elif [ "${wx}" = "${want_ver}" ] && [ -x "${full_argv0}-${auto_ver}" ] ; then
 				binary="${full_argv0}-${auto_ver}"
 				v="x"
 			fi
@@ -124,28 +127,17 @@ fi
 # autodetect helpers
 #
 acprereq_version() {
-	gawk \
-	'($0 !~ /^[[:space:]]*(#|dnl)/) {
-		if (match($0, "AC_PREREQ\\(\\[?([0-9]\\.[0-9])", res))
-			VERSIONS[COUNT++] = res[1]
-	}
-
-	END {
-		asort(VERSIONS)
-		print VERSIONS[COUNT]
-	}' "$@"
+	sed -n -r \
+		-e '/^\s*(#|dnl)/d' \
+		-e '/AC_PREREQ/s:.*AC_PREREQ\s*\(\[?\s*([0-9.]+)\s*\]?\):\1:p' \
+		"$@" |
+	LC_ALL=C sort -n -t . |
+	tail -1
 }
 
 generated_version() {
-	gawk \
-	'{
-		if (match($0,
-		          "^# Generated (by (GNU )?Autoconf|automatically using autoconf version) ([0-9].[0-9])",
-		          res)) {
-			print res[3]
-			exit
-		}
-	}' "$@"
+	local re='^# Generated (by (GNU )?Autoconf|automatically using autoconf version) ([0-9.]+).*'
+	sed -n -r "/${re}/{s:${re}:\3:;p;q}" "$@"
 }
 
 #
@@ -159,7 +151,7 @@ if [ "${WANT_AUTOCONF}" = "2.1" ] && [ -f "configure.ac" ] ; then
 	    "\t2. Don't set WANT_AUTOCONF"
 fi
 
-if [ "${WANT_AUTOCONF}" != "2.5" ] && [ -n "${WANT_AUTOMAKE}" ] ; then
+if [ "${WANT_AUTOCONF:-2.1}" = "2.1" ] && [ -n "${WANT_AUTOMAKE}" ] ; then
 	# Automake-1.7 and better require autoconf-2.5x so if WANT_AUTOMAKE
 	# is set to an older version, let's do some sanity checks.
 	case "${WANT_AUTOMAKE}" in
@@ -186,14 +178,16 @@ fi
 #
 # for further consistency
 #
-for v in ${vers} ; do
-	auto_ver=${v%:*}
-	want_ver=${v#*:}
-	if [ "${binary}" = "${full_argv0}-${auto_ver}" ] ; then
-		export WANT_AUTOCONF="${want_ver}"
-		break
-	fi
-done
+if [ -z "${WANT_AUTOCONF}" ] ; then
+	for v in ${vers} ; do
+		auto_ver=${v%:*}
+		want_ver=${v#*:}
+		if [ "${binary}" = "${full_argv0}-${auto_ver}" ] ; then
+			export WANT_AUTOCONF="${want_ver}"
+			break
+		fi
+	done
+fi
 
 #
 # Now try to run the binary
@@ -205,5 +199,4 @@ if [ ! -x "${binary}" ] ; then
 fi
 
 exec "${binary}" "$@"
-
-err "was unable to exec ${binary} !?"
+# The shell will error out if `exec` failed.
