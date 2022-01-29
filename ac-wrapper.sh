@@ -112,6 +112,9 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 		auto_ver=${v%:*}
 		want_ver=${v#*:}
 		for wx in ${WANT_AUTOCONF} ; do
+			if [ "${wx}" = "latest" ] ; then
+				wx="2.5"
+			fi
 			if [ -x "${full_argv0}-${wx}" ] ; then
 				binary="${full_argv0}-${wx}"
 				v="x"
