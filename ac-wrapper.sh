@@ -49,10 +49,6 @@ case $0 in
 		;;
 esac
 
-if [ "${argv0}" = "ac-wrapper.sh" ] ; then
-	err "Don't call this script directly"
-fi
-
 if [ "${WANT_AUTOCONF}" = "2.1" ] && [ "${argv0}" = "autom4te" ] ; then
 	err "Autoconf 2.13 doesn't contain autom4te.\n" \
 	    "   Either unset WANT_AUTOCONF or don't execute anything\n" \
