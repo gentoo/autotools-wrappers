@@ -146,11 +146,11 @@ generated_version() {
 # autodetect routine
 #
 if [ "${WANT_AUTOCONF}" = "2.1" ] && [ -f "configure.ac" ] ; then
-	err "Since configure.ac is present, aclocal always use\n" \
-	    "\tautoconf 2.59+, which conflicts with your choice and\n" \
-	    "\tcauses error. You have two options:\n" \
-	    "\t1. Try execute command again after removing configure.ac\n" \
-	    "\t2. Don't set WANT_AUTOCONF"
+	err \
+		"Since configure.ac is present, aclocal will always use autoconf 2.59+\n" \
+		"\twhich conflicts with your choice and causes errors. You have two options:\n" \
+		"\t1. Try executing the command again after removing configure.ac\n" \
+		"\t2. Don't set WANT_AUTOCONF (currently set to '${WANT_AUTOCONF}')"
 fi
 
 if [ "${WANT_AUTOCONF:-2.1}" = "2.1" ] && [ -n "${WANT_AUTOMAKE}" ] ; then
