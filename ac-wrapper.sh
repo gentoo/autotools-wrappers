@@ -146,10 +146,32 @@ generated_version() {
 	sed -n -E "/${re}/{s:${re}:\3:;p;q}" "$@"
 }
 
+recorded_aclocal_version() {
+	local re='.*m4_warning.*this file was generated for autoconf ([0-9].+)\..*'
+	sed -n -E "/${re}/{s:${re}:\1:;p;q}" "$@"
+}
+
 #
 # autodetect routine
 #
-if [ "${WANT_AUTOCONF}" = "2.1" ] && [ -f "configure.ac" ] ; then
+if [ -z "${WANT_AUTOCONF}" ] ; then
+	auto_vers=
+	if [ -r "configure" ] ; then
+		auto_vers="${auto_vers} $(generated_version configure)"
+	fi
+	if [ -r "aclocal.m4" ] ; then
+		auto_vers="${auto_vers} $(recorded_aclocal_version aclocal.m4)"
+	fi
+	# We don't need to set $binary here as it has already been setup for us
+	# earlier to the latest available version.
+	if [ -n "${auto_vers}" ] ; then
+		if ! find_binary ${auto_vers} ; then
+			warn "auto-detected versions not found (${auto_vers}); falling back to latest available"
+		fi
+	fi
+fi
+
+if [ "${WANT_AUTOCONF}" = "2.1" -o "${WANT_AUTOCONF}" = "2.13" ] && [ -f "configure.ac" ] ; then
 	err \
 		"Since configure.ac is present, aclocal will always use autoconf 2.59+\n" \
 		"\twhich conflicts with your choice and causes errors. You have two options:\n" \
