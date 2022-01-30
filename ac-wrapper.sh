@@ -108,17 +108,24 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 		fi
 
 		auto_ver=${v%:*}
-		want_ver=${v#*:}
 		for wx in ${WANT_AUTOCONF} ; do
 			if [ "${wx}" = "latest" ] ; then
 				wx="2.5"
+			elif [ "${wx}" = "2.1" ] ; then
+				wx="2.13"
 			fi
 			if [ -x "${full_argv0}-${wx}" ] ; then
 				binary="${full_argv0}-${wx}"
 				v="x"
-			elif [ "${wx}" = "${want_ver}" ] && [ -x "${full_argv0}-${auto_ver}" ] ; then
-				binary="${full_argv0}-${auto_ver}"
-				v="x"
+			elif [ "${wx}" = "2.5" ] ; then
+				if [ "${auto_ver}" = "2.13" ] ; then
+					# The "2.5" alias accepts every version except 2.13.
+					continue
+				fi
+				if [ -x "${full_argv0}-${auto_ver}" ] ; then
+					binary="${full_argv0}-${auto_ver}"
+					v="x"
+				fi
 			fi
 		done
 		[ "${v}" = "x" ] && break
