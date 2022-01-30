@@ -33,7 +33,7 @@ which() {
 # Sanitize argv[0] since it isn't always a full path #385201
 #
 argv0=${0##*/}
-case ${0} in
+case $0 in
 	${argv0})
 		# find it in PATH
 		if ! full_argv0=$(which "${argv0}") ; then
