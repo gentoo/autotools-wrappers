@@ -183,9 +183,8 @@ fi
 if [ -z "${WANT_AUTOCONF}" ] ; then
 	for v in ${vers} ; do
 		auto_ver=${v%:*}
-		want_ver=${v#*:}
 		if [ "${binary}" = "${full_argv0}-${auto_ver}" ] ; then
-			export WANT_AUTOCONF="${want_ver}"
+			export WANT_AUTOCONF="${auto_ver}"
 			break
 		fi
 	done
