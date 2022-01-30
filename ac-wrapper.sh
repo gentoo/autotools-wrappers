@@ -117,6 +117,7 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 			if [ -x "${full_argv0}-${wx}" ] ; then
 				binary="${full_argv0}-${wx}"
 				v="x"
+				break
 			elif [ "${wx}" = "2.5" ] ; then
 				if [ "${auto_ver}" = "2.13" ] ; then
 					# The "2.5" alias accepts every version except 2.13.
@@ -125,6 +126,7 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 				if [ -x "${full_argv0}-${auto_ver}" ] ; then
 					binary="${full_argv0}-${auto_ver}"
 					v="x"
+					break
 				fi
 			fi
 		done
