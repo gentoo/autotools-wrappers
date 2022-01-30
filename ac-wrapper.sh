@@ -214,7 +214,7 @@ export WANT_AUTOCONF="${binary_ver}"
 if [ ! -x "${binary}" ] ; then
 	# this shouldn't happen
 	err "${binary} is missing or not executable.\n" \
-	    "\tPlease try emerging the correct version of autoconf."
+	    "\tPlease try installing the correct version of autoconf."
 fi
 
 exec "${binary}" "$@"
