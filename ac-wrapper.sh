@@ -78,14 +78,13 @@ fi
 # Set up bindings between actual version and WANT_AUTOCONF;
 # Start at last known unstable/stable versions to speed up lookup process.
 #
-KNOWN_AUTOCONF="2.71:2.5 2.70:2.5 2.69:2.5"
-vers="${KNOWN_AUTOCONF} 9999:2.5 $(printf '2.%s:2.5 ' `seq 99 -1 59`) 2.13:2.1"
+KNOWN_AUTOCONF="2.71 2.70 2.69"
+vers="${KNOWN_AUTOCONF} 9999 $(printf '2.%s ' `seq 99 -1 59`) 2.13"
 
 binary=""
 for v in ${vers} ; do
-	auto_ver=${v%:*}
-	if [ -z "${binary}" ] && [ -x "${full_argv0}-${auto_ver}" ] ; then
-		binary="${full_argv0}-${auto_ver}"
+	if [ -z "${binary}" ] && [ -x "${full_argv0}-${v}" ] ; then
+		binary="${full_argv0}-${v}"
 		break
 	fi
 done
@@ -107,7 +106,6 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 			break
 		fi
 
-		auto_ver=${v%:*}
 		for wx in ${WANT_AUTOCONF} ; do
 			if [ "${wx}" = "latest" ] ; then
 				wx="2.5"
@@ -119,12 +117,12 @@ if [ -n "${WANT_AUTOCONF}" ] ; then
 				v="x"
 				break
 			elif [ "${wx}" = "2.5" ] ; then
-				if [ "${auto_ver}" = "2.13" ] ; then
+				if [ "${v}" = "2.13" ] ; then
 					# The "2.5" alias accepts every version except 2.13.
 					continue
 				fi
-				if [ -x "${full_argv0}-${auto_ver}" ] ; then
-					binary="${full_argv0}-${auto_ver}"
+				if [ -x "${full_argv0}-${v}" ] ; then
+					binary="${full_argv0}-${v}"
 					v="x"
 					break
 				fi
@@ -191,9 +189,8 @@ fi
 #
 if [ -z "${WANT_AUTOCONF}" ] ; then
 	for v in ${vers} ; do
-		auto_ver=${v%:*}
-		if [ "${binary}" = "${full_argv0}-${auto_ver}" ] ; then
-			export WANT_AUTOCONF="${auto_ver}"
+		if [ "${binary}" = "${full_argv0}-${v}" ] ; then
+			export WANT_AUTOCONF="${v}"
 			break
 		fi
 	done
