@@ -81,55 +81,52 @@ fi
 KNOWN_AUTOCONF="2.71 2.70 2.69"
 vers="${KNOWN_AUTOCONF} 9999 $(printf '2.%s ' `seq 99 -1 59`) 2.13"
 
-binary=""
-for v in ${vers} ; do
-	if [ -z "${binary}" ] && [ -x "${full_argv0}-${v}" ] ; then
-		binary="${full_argv0}-${v}"
-		break
-	fi
-done
-if [ -z "${binary}" ] ; then
-	err "Unable to locate any usuable version of autoconf.\n" \
-	    "\tI tried these versions: ${vers}\n" \
-	    "\tWith a base name of '${full_argv0}'."
-fi
+#
+# Helper to scan for a usable program based on version.
+#
+binary=
+all_vers=
+find_binary() {
+	local v
+	all_vers="${all_vers} $*" # For error messages.
+	for v ; do
+		if [ "${v}" = "2.1" ] ; then
+			v="2.13"
+		fi
+		if [ -x "${full_argv0}-${v}" ] ; then
+			binary="${full_argv0}-${v}"
+			binary_ver=${v}
+			return 0
+		fi
+	done
+	return 1
+}
 
 #
 # Check the WANT_AUTOCONF setting.  We accept a whitespace delimited
 # list of autoconf versions.
 #
-if [ -n "${WANT_AUTOCONF}" ] ; then
-	for v in ${vers} x ; do
-		if [ "${v}" = "x" ] ; then
-			warn "warning: invalid WANT_AUTOCONF '${WANT_AUTOCONF}'; ignoring."
-			unset WANT_AUTOCONF
-			break
-		fi
+find_latest() {
+	find_binary ${vers}
+}
+for wx in ${WANT_AUTOCONF:-latest} ; do
+	if [ "${wx}" = "latest" ] || [ "${wx}" = "2.5" ] ; then
+		find_latest && break
+	else
+		find_binary ${wx} && break
+	fi
+done
 
-		for wx in ${WANT_AUTOCONF} ; do
-			if [ "${wx}" = "latest" ] ; then
-				wx="2.5"
-			elif [ "${wx}" = "2.1" ] ; then
-				wx="2.13"
-			fi
-			if [ -x "${full_argv0}-${wx}" ] ; then
-				binary="${full_argv0}-${wx}"
-				v="x"
-				break
-			elif [ "${wx}" = "2.5" ] ; then
-				if [ "${v}" = "2.13" ] ; then
-					# The "2.5" alias accepts every version except 2.13.
-					continue
-				fi
-				if [ -x "${full_argv0}-${v}" ] ; then
-					binary="${full_argv0}-${v}"
-					v="x"
-					break
-				fi
-			fi
-		done
-		[ "${v}" = "x" ] && break
-	done
+if [ -z "${binary}" ] && [ -n "${WANT_AUTOCONF}" ] ; then
+	warn "could not locate installed version for WANT_AUTOCONF='${WANT_AUTOCONF}'; ignoring"
+	unset WANT_AUTOCONF
+	find_latest
+fi
+
+if [ -z "${binary}" ] ; then
+	err "Unable to locate any usuable version of autoconf.\n" \
+	    "\tI tried these versions:${all_vers}\n" \
+	    "\tWith a base name of '${full_argv0}'."
 fi
 
 #
@@ -187,14 +184,7 @@ fi
 #
 # for further consistency
 #
-if [ -z "${WANT_AUTOCONF}" ] ; then
-	for v in ${vers} ; do
-		if [ "${binary}" = "${full_argv0}-${v}" ] ; then
-			export WANT_AUTOCONF="${v}"
-			break
-		fi
-	done
-fi
+export WANT_AUTOCONF="${binary_ver}"
 
 #
 # Now try to run the binary
