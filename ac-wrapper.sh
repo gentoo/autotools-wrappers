@@ -131,7 +131,7 @@ fi
 # autodetect helpers
 #
 acprereq_version() {
-	sed -n -r \
+	sed -n -E \
 		-e '/^\s*(#|dnl)/d' \
 		-e '/AC_PREREQ/s:.*AC_PREREQ\s*\(\[?\s*([0-9.]+)\s*\]?\):\1:p' \
 		"$@" |
@@ -141,7 +141,7 @@ acprereq_version() {
 
 generated_version() {
 	local re='^# Generated (by (GNU )?Autoconf|automatically using autoconf version) ([0-9.]+).*'
-	sed -n -r "/${re}/{s:${re}:\3:;p;q}" "$@"
+	sed -n -E "/${re}/{s:${re}:\3:;p;q}" "$@"
 }
 
 #
