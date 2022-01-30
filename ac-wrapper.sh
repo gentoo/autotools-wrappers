@@ -17,8 +17,9 @@
 
 (set -o posix) 2>/dev/null && set -o posix
 
-warn() { printf "ac-wrapper: $*\n" 1>&2; }
-err() { warn "$@"; exit 1; }
+_stderr() { printf 'ac-wrapper: %s: %b\n' "${argv0}" "$*" 1>&2; }
+warn() { _stderr "warning: $*"; }
+err() { _stderr "error: $*"; exit 1; }
 unset IFS
 which() {
 	local p
