@@ -75,10 +75,10 @@ fi
 
 #
 # Set up bindings between actual version and WANT_AUTOCONF;
-# Start at last known unstable/stable versions to speed up lookup process.
+# Start with last known versions to speed up lookup process.
 #
-KNOWN_AUTOCONF="2.71 2.70 2.69"
-vers="${KNOWN_AUTOCONF} 9999 $(printf '2.%s ' `seq 99 -1 59`) 2.13"
+LAST_KNOWN_VER="71"
+vers=$(printf '2.%s ' `seq ${LAST_KNOWN_VER} -1 50`)
 
 #
 # Helper to scan for a usable program based on version.
@@ -106,7 +106,10 @@ find_binary() {
 # list of autoconf versions.
 #
 find_latest() {
-	find_binary ${vers}
+	if ! find_binary ${vers} ; then
+		# Brute force it.
+		find_binary $(printf '2.%s ' `seq 99 -1 ${LAST_KNOWN_VER}`) 9999
+	fi
 }
 for wx in ${WANT_AUTOCONF:-latest} ; do
 	if [ "${wx}" = "latest" ] || [ "${wx}" = "2.5" ] ; then
