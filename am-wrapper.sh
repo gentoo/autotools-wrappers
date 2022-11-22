@@ -73,7 +73,8 @@ fi
 # Start with last known versions to speed up lookup process.
 #
 LAST_KNOWN_AUTOMAKE_VER="16"
-vers=$(printf '1.%s ' `seq ${LAST_KNOWN_AUTOMAKE_VER} -1 4`)
+vers="9999"
+vers="${vers} $(printf '1.%s ' `seq ${LAST_KNOWN_AUTOMAKE_VER} -1 4`)"
 
 #
 # Helper to scan for a usable program based on version.
