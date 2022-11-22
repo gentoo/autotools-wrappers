@@ -80,7 +80,8 @@ fi
 # Start with last known versions to speed up lookup process.
 #
 LAST_KNOWN_VER="71"
-vers=$(printf '2.%s ' `seq ${LAST_KNOWN_VER} -1 50`)
+vers="9999"
+vers="${vers} $(printf '2.%s ' `seq ${LAST_KNOWN_VER} -1 50`)"
 
 #
 # Helper to scan for a usable program based on version.
