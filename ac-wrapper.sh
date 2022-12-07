@@ -147,7 +147,7 @@ acprereq_version() {
 }
 
 generated_version() {
-	local re='^# Generated (by (GNU )?Autoconf|automatically using autoconf version) ([0-9.]+)\..*'
+	local re='^# Generated (by (GNU )?Autoconf|automatically using autoconf version) (([0-9]+.)+[0-9]+).*$'
 	sed -n -E "/${re}/{s:${re}:\3:;p;q}" "$@"
 }
 
