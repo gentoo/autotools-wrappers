@@ -1,0 +1,16 @@
+certificate version 0.1
+pusher Sam James <sam@gentoo.org> 1789873752 +0100
+pushee git+ssh://git.gentoo.org/proj/autotools-wrappers.git
+nonce 1789873752-20f9bfa9bdfaedeb3fa8b1d19b6ec64d84818f3f
+
+0000000000000000000000000000000000000000 6eca8ac6c8c46d1c50b4dfb3ec011c76011f82df refs/tags/at-20260920
+-----BEGIN PGP SIGNATURE-----
+
+iQEBBAAWCgCpFiEEJaa7iN2bdkxrVUHCc4QJ9SDfkZAFAmqvTlgbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25z
+Lm9wZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXQyNUE2QkI4OEREOUI3NjRDNkI1NTQx
+QzI3Mzg0MDlGNTIwREY5MTkwDxxzYW1AZ2VudG9vLm9yZwAKCRBzhAn1IN+RkAtf
+AQCQ/9/reSsU93s4fLU7O2hrpEvkthX+FuHSlqqhxhO/0QD8D71O3w/CwNbvFctg
+rMfFzIB/+wCBxKBzNlfW1N8MKQ8=
+=2vLD
+-----END PGP SIGNATURE-----
